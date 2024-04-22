@@ -2,26 +2,30 @@ import express from 'express';
 import dotenv from 'dotenv';
 import WebSocket,{WebSocketServer} from 'ws';
 import http from 'http';
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocketServer({server});
+// const wss = new WebSocketServer({ server });
 
+app.use(cors());
 
 const port = process.env.PORT || 5000;
 
-wss.on('connection',(ws:WebSocket)=>{
-    
-    ws.on('error',(err:Error)=>{console.log(err)});
+const wss = new WebSocketServer({ port: 8080 });
 
-    ws.on('message',(message:String)=>{
-        console.log(`[server]: Received message => ${message}`);
-    })
+wss.on('connection', function connection(ws) {
+  ws.on('error', console.error);
 
-    ws.send('Hello World! Welcome to the websocket server');
-})
+  ws.on('message', function message(data) {
+    console.log('received: %s', data);
+  });
+
+  ws.send('something');
+});
+
 
 app.get('/',(req,res)=>{
     res.send('Hello World');
@@ -30,3 +34,4 @@ app.get('/',(req,res)=>{
 app.listen(port,()=>{
     console.log(`[server]: Server is running on port http://localhost:${port}`);
 })
+
