@@ -16,11 +16,17 @@ const port = process.env.PORT || 5000;
 
 const wss = new WebSocketServer({ port: 8080 });
 
-wss.on('connection', function connection(ws) {
+wss.on('connection',(ws:WebSocket)=> {
   ws.on('error', console.error);
 
-  ws.on('message', function message(data) {
-    console.log('received: %s', data);
+  ws.on('message',(data:String)=> {
+    wss.clients.forEach((client:WebSocket)=> {
+        if(client.readyState === WebSocket.OPEN){
+            console.log('received: %s', data);
+            client.send(data);
+        }
+    })
+    
   });
 
   ws.send('something');
